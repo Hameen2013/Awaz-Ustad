@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Awaz Ustad – Speak, Learn & Connect</title>
+<style>
+  :root{
+    --green:#0f7a5c; --green2:#14a37a; --gold:#f5b301; --bg:#f3faf6;
+    --ink:#123; --muted:#5b6b73; --card:#fff; --red:#e0475b; --ps:#0f7a5c; --hk:#7a3fb8; --en:#1f6fd1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(120deg,var(--green),var(--green2));color:#fff;padding:18px 20px;text-align:center}
+  header h1{margin:0;font-size:2rem;letter-spacing:.5px}
+  header p{margin:4px 0 0;opacity:.9}
+  .wrap{max-width:980px;margin:0 auto;padding:18px}
+  .tabs{display:flex;gap:10px;justify-content:center;margin:6px 0 16px;flex-wrap:wrap}
+  .tab{border:none;padding:12px 22px;border-radius:30px;font-size:1.05rem;cursor:pointer;background:#dfeee7;color:var(--green);font-weight:600}
+  .tab.active{background:var(--green);color:#fff}
+  .panel{display:none}.panel.active{display:block}
+  .box{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 4px 16px rgba(0,0,0,.06);margin-bottom:16px}
+  .center{text-align:center}
+  .btn{border:none;background:var(--gold);color:#222;font-weight:700;font-size:1.1rem;padding:14px 28px;border-radius:30px;cursor:pointer}
+  .btn:disabled{opacity:.5;cursor:default}
+  .status{margin-top:10px;color:var(--muted);min-height:1.2em}
+  .mic{display:inline-block;width:14px;height:14px;border-radius:50%;background:#bbb;margin-right:6px;vertical-align:middle}
+  .mic.on{background:var(--red);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.3}}
+  .big-emoji{font-size:7rem;line-height:1.1}
+  .said{font-size:1.1rem;color:var(--muted);margin:6px 0 12px}
+  .langs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .lang{border-radius:14px;padding:14px;color:#fff;cursor:pointer;transition:transform .15s}
+  .lang:hover{transform:scale(1.03)}
+  .lang.ps{background:var(--ps)}.lang.hk{background:var(--hk)}.lang.en{background:var(--en)}
+  .lang.spoken{outline:5px solid var(--gold)}
+  .lang .tag{font-size:.8rem;opacity:.85;text-transform:uppercase;letter-spacing:1px}
+  .lang .roman{font-size:1.6rem;font-weight:700}
+  .lang .script{font-size:1.4rem;direction:rtl}
+  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+  .wcard{width:170px;background:#fff;border-radius:14px;padding:12px;text-align:center;cursor:pointer;border:2px solid #e3efe9}
+  .wcard:hover{border-color:var(--green2)}
+  .wcard .e{font-size:3rem}
+  .wcard small{display:block;color:var(--muted)}
+  .stars{font-size:2.4rem;letter-spacing:6px}
+  .feedback{font-size:1.4rem;font-weight:700;min-height:1.6em;margin-top:8px}
+  .ok{color:var(--green)}.no{color:var(--red)}
+  .bars{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));column-gap:20px}
+  .bars .row{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:.85rem}
+  .bars .label{width:120px;text-align:right;color:var(--muted)}
+  .bars .track{flex:1;background:#e8f1ec;border-radius:8px;height:16px;overflow:hidden}
+  .bars .fill{height:100%;background:var(--green2);width:0;transition:width .15s}
+  .bars .pct{width:44px}
+  #badge{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9}
+  #badge .inner{background:#fff;border-radius:24px;padding:30px 40px;text-align:center;max-width:90%}
+  #badge .trophy{font-size:6rem}
+  footer{text-align:center;color:var(--muted);font-size:.85rem;padding:16px}
+  @media(max-width:640px){.langs{grid-template-columns:1fr}.big-emoji{font-size:5rem}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎙️ Awaz Ustad</h1>
+  <p>Speak, Learn &amp; Connect in Pashto, Hindko &amp; English · by Team Awaz Ustad</p>
+</header>
+
+<div class="wrap">
+  <div class="box center">
+    <button class="btn" id="startBtn">▶ Start Awaz Ustad</button>
+    <div class="status"><span class="mic" id="micDot"></span><span id="status">Press Start and allow the microphone.</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="learn">📖 Learn</button>
+    <button class="tab" data-tab="game">⭐ Game</button>
+    <button class="tab" data-tab="explore">🗂️ All Words</button>
+    <button class="tab" data-tab="ai">🧠 How AI Hears</button>
+  </div>
+
+  <!-- LEARN MODE -->
+  <section class="panel active" id="learn">
+    <div class="box center">
+      <div class="big-emoji" id="learnEmoji">🗣️</div>
+      <div class="said" id="learnSaid">Say a word in Pashto, Hindko or English…</div>
+      <div class="langs" id="learnLangs"></div>
+    </div>
+  </section>
+
+  <!-- GAME MODE -->
+  <section class="panel" id="game">
+    <div class="box center">
+      <div class="stars" id="stars">☆☆☆☆☆</div>
+      <div class="big-emoji" id="gameEmoji">❓</div>
+      <div class="said">Say the name of this picture in <b>any</b> language!</div>
+      <div class="feedback" id="feedback"></div>
+      <button class="btn" id="skipBtn" style="margin-top:10px;font-size:.95rem;padding:10px 20px">Next picture ⏭</button>
+    </div>
+  </section>
+
+  <!-- EXPLORE -->
+  <section class="panel" id="explore">
+    <div class="box">
+      <p class="center" style="margin-top:0;color:var(--muted)">Tap a word to hear it in all three languages.</p>
+      <div class="grid" id="wordGrid"></div>
+    </div>
+  </section>
+
+  <!-- AI VIEW -->
+  <section class="panel" id="ai">
+    <div class="box">
+      <p style="margin-top:0;color:var(--muted)">This shows how sure the AI is about each word it hears, live. The word must be above <b id="thrLabel"></b> to count.</p>
+      <div class="bars" id="bars"></div>
+    </div>
+  </section>
+</div>
+
+<div id="badge"><div class="inner">
+  <div class="trophy">🏆</div>
+  <h2 style="margin:6px 0">Zabaan Hero!</h2>
+  <p>You know words in Pashto, Hindko &amp; English!</p>
+  <button class="btn" id="againBtn">Play again</button>
+</div></div>
+
+<footer>
+  <b>Team Awaz Ustad</b><br>
+  Made by Muhammad Hameen Faraz &amp; Malik Hamdan Elahi · PMS Boys 3, Peshawar<br>
+  AI Innovation Challenge 2026 · KPITB
+</footer>
+
+<script src="lib/tf.min.js"></script>
+<script src="lib/speech-commands.min.js"></script>
+<script>
+/* ================= SETTINGS (Hameen edits these) ================= */
+
+// 1) Paste your Teachable Machine model link here (it must end with "/")
+const MODEL_URL = new URL("my_model/", location.href).href;   // offline copy (online: https://teachablemachine.withgoogle.com/models/B7aIszlfE/)
+
+// 2) How sure the AI must be before it accepts a word (0.75 = 75%)
+const THRESHOLD = 0.80;
+
+// 3) The words. Class names in Teachable Machine must be: id_en, id_ps, id_hk
+//    e.g. cat_en, cat_ps, cat_hk  (plus "Background Noise")
+//    Pronunciation clips go in the "audio" folder: audio/cat_ps.mp3, audio/cat_hk.mp3, audio/cat_en.mp3
+const WORDS = [
+  { id:"cat",    emoji:"🐈", en:"Cat",    ps:{roman:"Pisho",    script:"پیشو"},    hk:{roman:"Billi",  script:"بلی"} },
+  { id:"water",  emoji:"💧", en:"Water",  ps:{roman:"Oba",      script:"اوبه"},    hk:{roman:"Paani",  script:"پانی"} },
+  { id:"moon",   emoji:"🌙", en:"Moon",   ps:{roman:"Spogmay",  script:"سپوږمۍ"},  hk:{roman:"Chann",  script:"چن"} },
+  { id:"flower", emoji:"🌸", en:"Flower", ps:{roman:"Gul",      script:"ګل"},      hk:{roman:"Phull",  script:"پھل"} },
+  { id:"eye",    emoji:"👁️", en:"Eye",    ps:{roman:"Starga",   script:"سترګه"},   hk:{roman:"Akh",    script:"اکھ"} },
+];
+
+/* ================= APP CODE ================= */
+const LANG_NAME = { ps:"Pashto", hk:"Hindko", en:"English" };
+const byId = Object.fromEntries(WORDS.map(w => [w.id, w]));
+let recognizer = null, labels = [], busy = false, mode = "learn";
+let stars = 0, target = null;
+
+const $ = id => document.getElementById(id);
+$("thrLabel").textContent = Math.round(THRESHOLD*100) + "%";
+
+// ---- tabs ----
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+  t.classList.add("active"); $(t.dataset.tab).classList.add("active");
+  mode = t.dataset.tab;
+  if (mode === "game" && !target) newRound();
+});
+
+// ---- sounds ----
+function playClip(id, lang){
+  return new Promise(resolve => {
+    const a = new Audio(`audio/${id}_${lang}.mp3`);
+    a.onended = resolve;
+    a.onerror = () => {                       // no clip? English falls back to the browser voice
+      if (lang === "en" && "speechSynthesis" in window){
+        const u = new SpeechSynthesisUtterance(byId[id].en); u.lang = "en-US"; u.onend = resolve;
+        speechSynthesis.speak(u);
+      } else resolve();
+    };
+    a.play().catch(a.onerror);
+  });
+}
+function chime(good){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const notes = good ? [523,659,784] : [300,220];
+    notes.forEach((f,i)=>{
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = f; o.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(.2, ctx.currentTime + i*.15);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + i*.15 + .3);
+      o.start(ctx.currentTime + i*.15); o.stop(ctx.currentTime + i*.15 + .3);
+    });
+  }catch(e){}
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// ---- language cards ----
+function langCards(w, spokenLang){
+  return ["ps","hk","en"].map(l => {
+    const roman = l === "en" ? w.en : w[l].roman;
+    const script = l === "en" ? "&nbsp;" : w[l].script;
+    return `<div class="lang ${l} ${l===spokenLang?'spoken':''}" data-id="${w.id}" data-lang="${l}">
+      <div class="tag">${LANG_NAME[l]}${l===spokenLang?' · you said':''}</div>
+      <div class="roman">${roman}</div><div class="script">${script}</div></div>`;
+  }).join("");
+}
+document.addEventListener("click", e => {
+  const c = e.target.closest(".lang");
+  if (c && !busy) { busy = true; playClip(c.dataset.id, c.dataset.lang).then(() => busy = false); }
+});
+
+// ---- LEARN ----
+async function learnShow(id, lang){
+  busy = true;
+  const w = byId[id];
+  $("learnEmoji").textContent = w.emoji;
+  $("learnSaid").innerHTML = `You said <b>${lang==="en"?w.en:w[lang].roman}</b> in <b>${LANG_NAME[lang]}</b>! Here it is in the other languages:`;
+  $("learnLangs").innerHTML = langCards(w, lang);
+  chime(true); await wait(500);
+  for (const l of ["ps","hk","en"]) if (l !== lang) { await playClip(id, l); await wait(300); }
+  await wait(800);          // short pause so the speaker sound is not heard as a new word
+  busy = false;
+}
+
+// ---- GAME ----
+function newRound(){
+  let next; do { next = WORDS[Math.floor(Math.random()*WORDS.length)]; } while (WORDS.length > 1 && target && next.id === target.id);
+  target = next;
+  $("gameEmoji").textContent = target.emoji;
+  $("feedback").textContent = ""; $("feedback").className = "feedback";
+}
+function drawStars(){ $("stars").textContent = "★".repeat(stars) + "☆".repeat(5 - stars); }
+async function gameCheck(id, lang){
+  busy = true;
+  const w = byId[id];
+  if (id === target.id){
+    stars++; drawStars(); chime(true);
+    $("feedback").className = "feedback ok";
+    $("feedback").textContent = `✅ Shabash! ${w.ps.roman} · ${w.hk.roman} · ${w.en}`;
+    await wait(1800);
+    if (stars >= 5){ $("badge").style.display = "flex"; }
+    else newRound();
+  } else {
+    chime(false);
+    $("feedback").className = "feedback no";
+    $("feedback").textContent = `🤔 That sounded like "${lang==="en"?w.en:w[lang].roman}". Try again!`;
+    await wait(1500);
+  }
+  busy = false;
+}
+$("skipBtn").onclick = newRound;
+$("againBtn").onclick = () => { stars = 0; drawStars(); $("badge").style.display = "none"; newRound(); };
+
+// ---- EXPLORE grid ----
+$("wordGrid").innerHTML = WORDS.map(w =>
+  `<div class="wcard" data-id="${w.id}"><div class="e">${w.emoji}</div><b>${w.en}</b>
+   <small>Pashto: ${w.ps.roman} · Hindko: ${w.hk.roman}</small></div>`).join("");
+document.querySelectorAll(".wcard").forEach(c => c.onclick = async () => {
+  if (busy) return; busy = true;
+  for (const l of ["ps","hk","en"]) { await playClip(c.dataset.id, l); await wait(300); }
+  busy = false;
+});
+
+// ---- AI bars ----
+function drawBars(scores){
+  $("bars").innerHTML = labels.map((lab,i) => {
+    const p = Math.round(scores[i]*100);
+    return `<div class="row"><div class="label">${lab}</div><div class="track"><div class="fill" style="width:${p}%"></div></div><div class="pct">${p}%</div></div>`;
+  }).join("");
+}
+
+// ---- START ----
+$("startBtn").onclick = async () => {
+  $("startBtn").disabled = true;
+  $("status").textContent = "Loading the AI model…";
+  try{
+    recognizer = speechCommands.create("BROWSER_FFT", undefined, MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+    await recognizer.ensureModelLoaded();
+    labels = recognizer.wordLabels();
+  }catch(err){
+    $("status").textContent = "Could not load the model. Check MODEL_URL in the settings.";
+    $("startBtn").disabled = false; console.error(err); return;
+  }
+  recognizer.listen(result => {
+    const s = result.scores;
+    drawBars(s);
+    let best = 0; for (let i = 1; i < s.length; i++) if (s[i] > s[best]) best = i;
+    const label = labels[best];
+    if (busy || s[best] < THRESHOLD || label === "Background Noise" || !label.includes("_")) return;
+    const [id, lang] = label.split("_");
+    if (!byId[id]) return;
+    if (mode === "learn") learnShow(id, lang);
+    else if (mode === "game") gameCheck(id, lang);
+  }, { includeSpectrogram:false, probabilityThreshold:0.5, invokeCallbackOnNoiseAndUnknown:true, overlapFactor:0.5 });
+  $("micDot").classList.add("on");
+  $("status").textContent = "Listening… speak clearly!";
+  $("startBtn").textContent = "🎙️ Listening";
+};
+</script>
+</body>
+</html>
