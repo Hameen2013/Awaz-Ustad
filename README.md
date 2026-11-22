@@ -8,6 +8,7 @@
 
 ## 🏆 Competition
 
+| Type | Detail |
 |---|---|
 | **Event** | KPITB AI Innovation Challenge 2026 (Khyber Pakhtunkhwa Information Technology Board) |
 | **Category** | AI Rising Stars (Interactive) |
